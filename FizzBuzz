@@ -1,0 +1,16 @@
+public String[] fizzBuzz(int start, int end) {
+  int size = end - start;
+  String[] result = new String[size];
+  
+  int index = 0;
+  for (int i = start; i < end; i++) {
+    boolean fizz = i % 3 == 0;
+    boolean buzz = i % 5 == 0;
+    if (fizz && buzz) result[index] = "FizzBuzz";
+    else if (fizz) result[index] = "Fizz";
+    else if (buzz) result[index] = "Buzz";
+    else result[index] = String.valueOf(i);
+    index++;
+  } return result;
+    
+}
