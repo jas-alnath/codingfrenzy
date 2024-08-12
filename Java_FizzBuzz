@@ -1,3 +1,10 @@
+// What this code does...
+// Given a series of integers beginning at 'start' and running up to but not including 'end':
+// return a new String[] array containing string form of these integers, except for:
+// multiples of 3 print "Fizz" instead of the integer,
+// multiples of 5 print "Buzz" instead of the integer,
+// multiples for both 3 and 5 print "FizzBuzz"
+
 public String[] fizzBuzz(int start, int end) {
   int size = end - start;
   String[] result = new String[size];
@@ -14,3 +21,4 @@ public String[] fizzBuzz(int start, int end) {
   } return result;
     
 }
+
