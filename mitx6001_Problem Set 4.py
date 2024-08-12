@@ -1,8 +1,67 @@
-##Scrabble - A word game
-##The first step is to implement some code that allows us to calculate the score for a single word.
-##The function getWordScore should accept as input a string of lowercase letters (a word) and return
-##the integer score for that word, using the game's scoring rules.
+# 6.00x Problem Set 4A Template
+#
+# The 6.00 Word Game
+# Created by: Kevin Luu <luuk> and Jenna Wiens <jwiens>
+# Modified by: Sarina Canelake <sarina>
+#
+# Student Name: Jasmin A. Feininger
 
+import random
+import string
+
+VOWELS = 'aeiou'
+CONSONANTS = 'bcdfghjklmnpqrstvwxyz'
+HAND_SIZE = 7
+
+SCRABBLE_LETTER_VALUES = {
+    'a': 1, 'b': 3, 'c': 3, 'd': 2, 'e': 1, 'f': 4, 'g': 2, 'h': 4, 'i': 1, 'j': 8, 'k': 5, 'l': 1, 'm': 3, 'n': 1, 'o': 1, 'p': 3, 'q': 10, 'r': 1, 's': 1, 't': 1, 'u': 1, 'v': 4, 'w': 4, 'x': 8, 'y': 4, 'z': 10
+}
+
+# -----------------------------------
+# Helper code
+# (you don't need to understand this helper code)
+
+WORDLIST_FILENAME = "words.txt"
+
+def loadWords():
+    """
+    Returns a list of valid words. Words are strings of lowercase letters.
+    
+    Depending on the size of the word list, this function may
+    take a while to finish.
+    """
+    print "Loading word list from file..."
+    # inFile: file
+    inFile = open(WORDLIST_FILENAME, 'r', 0)
+    # wordList: list of strings
+    wordList = []
+    for line in inFile:
+        wordList.append(line.strip().lower())
+    print "  ", len(wordList), "words loaded."
+    return wordList
+
+def getFrequencyDict(sequence):
+    """
+    Returns a dictionary where the keys are elements of the sequence
+    and the values are integer counts, for the number of times that
+    an element is repeated in the sequence.
+
+    sequence: string or list
+    return: dictionary
+    """
+    # freqs: dictionary (element_type -> int)
+    freq = {}
+    for x in sequence:
+        freq[x] = freq.get(x,0) + 1
+    return freq
+	
+
+# (end of helper code)
+# -----------------------------------
+
+#
+# Problem #1: Scoring a word
+#
 def getWordScore(word, n):
     """
     Returns the score for a word. Assumes the word is a valid word.
@@ -20,13 +79,59 @@ def getWordScore(word, n):
     """
     return (len(word) * sum(SCRABBLE_LETTER_VALUES[i] for i in word)) +(50 if len(word) == n else 0)
 
-##A hand is the set of letters held by a player during the game. The player is initially dealt a set of random letters.
-##For example, the player could start out with the following hand: a, q, l, m, u, i, l. In our program, a hand will be
-##represented as a dictionary: the keys are (lowercase) letters and the values are the number of times the particular
-##letter is repeated in that hand. For example, the above hand would be represented as:
-##
-##hand = {'a':1, 'q':1, 'l':2, 'm':1, 'u':1, 'i':1}
 
+
+#
+# Problem #2: Make sure you understand how this function works and what it does!
+#
+def displayHand(hand):
+    """
+    Displays the letters currently in the hand.
+
+    For example:
+    >>> displayHand({'a':1, 'x':2, 'l':3, 'e':1})
+    Should print out something like:
+       a x x l l l e
+    The order of the letters is unimportant.
+
+    hand: dictionary (string -> int)
+    """
+    for letter in hand.keys():
+        for j in range(hand[letter]):
+             print letter,              # print all on the same line
+    print                               # print an empty line
+
+#
+# Problem #2: Make sure you understand how this function works and what it does!
+#
+def dealHand(n):
+    """
+    Returns a random hand containing n lowercase letters.
+    At least n/3 the letters in the hand should be VOWELS.
+
+    Hands are represented as dictionaries. The keys are
+    letters and the values are the number of times the
+    particular letter is repeated in that hand.
+
+    n: int >= 0
+    returns: dictionary (string -> int)
+    """
+    hand={}
+    numVowels = n / 3
+    
+    for i in range(numVowels):
+        x = VOWELS[random.randrange(0,len(VOWELS))]
+        hand[x] = hand.get(x, 0) + 1
+        
+    for i in range(numVowels, n):    
+        x = CONSONANTS[random.randrange(0,len(CONSONANTS))]
+        hand[x] = hand.get(x, 0) + 1
+        
+    return hand
+
+#
+# Problem #2: Update a hand by removing letters
+#
 def updateHand(hand, word):
     """
     Assumes that 'hand' has all the letters in word.
@@ -48,9 +153,11 @@ def updateHand(hand, word):
         updated_hand[i] = updated_hand[i] - 1
     return updated_hand
 
-##However, at this point we have not written any code to verify that a word given by a player obeys the rules of the game.
-##A valid word is in the word list; and it is composed entirely of letters from the current hand. Implement the isValidWord function.
 
+
+#
+# Problem #3: Test word validity
+#
 def isValidWord(word, hand, wordList):
     """
     Returns True if word is in the wordList and is entirely
@@ -70,21 +177,21 @@ def isValidWord(word, hand, wordList):
                 return False
         return True
 
-##We are now ready to begin writing the code that interacts with the player. We'll be implementing the playHand function. This function
-##allows the user to play out a single hand. First, though, you'll need to implement the helper calculateHandlen function,
-##which can be done in under five lines of code.
+
+#
+# Problem #4: Playing a hand
+#
 
 def calculateHandlen(hand):
     """ 
     Returns the length (number of letters) in the current hand.
     
-    hand: dictionary (string int)
+    hand: dictionary (string-> int)
     returns: integer
     """
     return sum(hand.values())
 
 
-##Playing a hand:
 
 def playHand(hand, wordList, n):
     """
@@ -108,14 +215,25 @@ def playHand(hand, wordList, n):
       n: integer (HAND_SIZE; i.e., hand size required for additional points)
       
     """
+    # Keep track of total score:
     totalScore = 0
     output = "Run out of letters."
+
+    # As long as there are still letters left in the hand:
+    # Display hand, ask user for input, if input is a single period, end the game/break loop
     while calculateHandlen(hand) > 0:
         displayHand(hand)
         word = raw_input('Enter word, or a "." to indicate that you are finished: ').lower()
         if word == '.':
             output = "Goodbye!"
             break
+
+    # If input is not a single period:
+        # If word is not valid, reject invalid word and print a message
+        # If word is valid, output user how many points the word earned and the updated total score in one line
+        # Update the hand
+    # User entered '.' or ran out of letters, tell user total score
+
         else:
             if not isValidWord(word, hand, wordList):
                 print("Invalid word, please try again.")
@@ -125,21 +243,22 @@ def playHand(hand, wordList, n):
                 print('"{0:s}" earned {1:d} points. Total: {2:d} points.'.format(word, score, totalScore))
                 hand = updateHand(hand, word)
     print('{0:s} Total score: {1:d} points.'.format(output, totalScore))
-
-
-##Playing a game:
+   
+#
+# Problem #5: Playing a game
+# 
 
 def playGame(wordList):
     """
     Allow the user to play an arbitrary number of hands.
- 
+
     1) Asks the user to input 'n' or 'r' or 'e'.
       * If the user inputs 'n', let the user play a new (random) hand.
       * If the user inputs 'r', let the user play the last hand again.
       * If the user inputs 'e', exit the game.
       * If the user inputs anything else, tell them their input was invalid.
  
-    2) When done playing the hand, repeat from step 1
+    2) When done playing the hand, repeat from step 1    
     """
     hand = False
     while True:
@@ -157,11 +276,19 @@ def playGame(wordList):
             else:
                 break
             print("")
+   
 
-##Now that you have completed your word game code, you decide that you would like to enable your computer (SkyNet)
-##to play the game.
-##In Part B you will make a modification to the playHand function from part A that will enable this to happen.
+# PART 2 FOLLOWS HERE:
 
+from ps4a import *
+import time
+
+
+#
+#
+# Problem #6: Computer chooses a word
+#
+#
 def compChooseWord(hand, wordList, n):
     """
     Given a hand and a wordList, find the word that gives 
@@ -174,17 +301,30 @@ def compChooseWord(hand, wordList, n):
 
     hand: dictionary (string -> int)
     wordList: list (string)
+    n: integer (HAND_SIZE; i.e., hand size required for additional points)
+
     returns: string or None
     """
+    
     def calculateHandlen(hand):
         counts = hand.values()
         total = 0
         for i in range (len(counts)):
             total = total + counts[i]
         return total
-     
+        
+    # Create a new variable to store the best word seen so far (initially None)
+    # Create a new variable to store the maximum score seen so far (initially 0)
+
     bestword = None
     maxscore = 0
+
+    # For each word in wordList: 
+        # If word can be constructed from hand, determine how much word is worth:
+            # If score for that word is higher than previous best score, update
+            # best score and best word accordingly
+    # Then return the best word you found
+    
     for word in wordList:
         if isValidWord(word, hand, wordList) == True:
             score = getWordScore(word, calculateHandlen(hand))
@@ -192,25 +332,10 @@ def compChooseWord(hand, wordList, n):
                 maxscore = score
                 bestword = word
     return bestword
-
-##Now that we have the ability to let the computer choose a word, we need to set up a function to allow the computer to play a hand -
-##in a manner very similar to Part A's playHand function (get the hint?).
-##
-##Implement the compPlayHand function. This function should allow the computer to play a given hand, using the procedure you just wrote
-##in the previous part. This should be very similar to the earlier version in which a user selected the word, although deciding when it
-##is done playing a particular hand will be different.
-
-def compChooseWord(hand,wordList, n):
-    bestword = None
-    maxscore = 0
-    for word in wordList:
-        if isValidWord(word, hand, wordList) == True:
-            score = getWordScore(word, calculateHandlen(hand))
-            if getWordScore(word, calculateHandlen(hand)) > maxscore:
-                maxscore = score
-                bestword = word
-    return bestword
-
+   
+#
+# Problem #7: Computer plays a hand
+#
 def compPlayHand(hand, wordList, n):
     """
     Allows the computer to play the given hand, following the same procedure
@@ -242,11 +367,11 @@ def compPlayHand(hand, wordList, n):
         score += score_word
         print '"%s" earned %s points. Total: %s points' % (word, score_word, score)
     print 'Total score: %s points.' % (score)
-        
-##Now that your computer can choose a word, you need to give the computer the option to play. Write the code that re-implements the playGame function.
-##You will modify the function to behave as described below in the function's comments. As before, you should use the HAND_SIZE constant to determine
-##the number of cards in a hand. Be sure to try out different values for HAND_SIZE with your program.
-
+    
+#
+# Problem #8: Playing a game
+#
+#
 def playGame(wordList):
     """
     Allow the user to play an arbitrary number of hands.
@@ -261,9 +386,7 @@ def playGame(wordList):
     3) Switch functionality based on the above choices:
         * If the user inputted 'n', play a new (random) hand.
         * Else, if the user inputted 'r', play the last hand again.
-          But if no hand was played, output "You have not played a hand yet. 
-          Please play a new hand first!"
-        
+      
         * If the user inputted 'u', let the user play the game
           with the selected hand, using playHand.
         * If the user inputted 'c', let the computer play the 
@@ -308,4 +431,12 @@ def playGame(wordList):
         
         else:
             print 'Invalid command.'
+        
+#
+# Build data structures used for entire session and play game
+#
+if __name__ == '__main__':
+    wordList = loadWords()
+    playGame(wordList)
+
 
